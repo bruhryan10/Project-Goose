@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class InputManager : MonoBehaviour
 {
     [SerializeField] GameObject player;
+    PlayerMovement playerMovement;
     [SerializeField] PlayerInput input;
     InputAction jump;
     InputAction move;
-    InputAction pause;
 
     void Awake()
     {
@@ -21,38 +22,37 @@ public class InputManager : MonoBehaviour
         }
         else if (_instance != this)
             Destroy(gameObject);
+
         player = GameObject.Find("Player");
+        playerMovement = player.GetComponent<PlayerMovement>();
+
         input = GetComponent<PlayerInput>();
         jump = input.actions.FindAction("jump");
         move = input.actions.FindAction("move");
-        //pause = input.actions.FindAction("pause");
-        jump.performed += ctx => Debug.Log("Jump Ran!");
+        jump.performed += ctx => playerMovement.PlayerJump();
+        jump.canceled += ctx => playerMovement.SetFloatState(false);
     }
 
     void Update()
     {
-        Vector2 moveDir = move.ReadValue<Vector2>();
-        Debug.Log("Test Move: " + moveDir);
-        player.GetComponent<PlayerMovement>().MovePlayer(moveDir);
-        //move.performed += ctx => player.GetComponent<PlayerMovement>().MovePlayer(moveDir);
+        if (SceneManager.GetActiveScene().name == "Main_Menu")
+            return;
+
+        player = GameObject.Find("Player");
+        playerMovement = player.GetComponent<PlayerMovement>();
+
+        if (jump.IsPressed())
+            playerMovement.SetFloatState(true);
+
+        if (player != null && move != null)
+        {
+            Vector2 moveDir = move.ReadValue<Vector2>();
+            playerMovement.MovePlayer(moveDir);
+        }
+        else
+            Debug.LogWarning("Player or move action is not set!");
 
     }
-    void OnEnable()
-    {
-        jump.Enable();
-        move.Enable();
-        Debug.Log("Enabled!");
-        //pause.Enable();
-    }
-
-    void OnDisable()
-    {
-        jump.Disable();
-        move.Disable();
-        //pause.Disable();
-    }
-
-
 
     private static InputManager _instance;
     public static InputManager Instance
