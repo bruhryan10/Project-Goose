@@ -12,7 +12,7 @@ public class SceneLoader : MonoBehaviour
 
     void Update()
     {
-        
+
     }
     public void QuitGame()
     {

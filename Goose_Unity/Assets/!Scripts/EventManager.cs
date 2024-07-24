@@ -37,6 +37,6 @@ public class EventManager : MonoBehaviour
 
     void Update()
     {
-        
+
     }
 }
