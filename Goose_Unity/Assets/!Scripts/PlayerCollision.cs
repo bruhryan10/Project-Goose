@@ -28,7 +28,7 @@ public class PlayerCollision : MonoBehaviour
             timer += Time.deltaTime;
             Debug.Log(timer);
         }
-        if (!test)
-            Debug.Log(timer);
+/*        if (!test)
+            Debug.Log(timer);*/
     }
 }

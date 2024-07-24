@@ -277,7 +277,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.5
   m_Height: 2
@@ -2337,10 +2337,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 10
   rotationSpeed: 360
-  jumpForce: 11
-  fallGravity: 3
-  jumpGravity: 3
+  jumpForce: 10
+  fallGravity: 2.5
+  jumpGravity: 2.5
   floatGravity: 0.5
+  isJumping: 0
   isFloating: 0
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

@@ -11,7 +11,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float jumpGravity;
     [SerializeField] float floatGravity;
     Rigidbody rb;
-    bool isJumping;
+    [SerializeField] bool isJumping;
     [SerializeField] bool isFloating;
     void Start()
     {
@@ -35,29 +35,52 @@ public class PlayerMovement : MonoBehaviour
     {
         if (IsGrounded())
         {
-            isJumping = true;
+            //isJumping = true;
+            rb.velocity = new Vector3(rb.velocity.x, 0, rb.velocity.z);
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
     }
-    void Update()
+    void FixedUpdate()
     {
-        if (isJumping && rb.velocity.y < 0)
+        /*        if (IsGrounded())
+                    isJumping = false;
+                else if (rb.velocity.y > 0)
+                    isJumping = true;*/
+        HandleGravity();
+    }
+    void HandleGravity()
+    {
+        if (rb.velocity.y < 0)
         {
             float currentFallGravityScale = isFloating ? floatGravity : fallGravity;
-            rb.velocity += Vector3.up * Physics.gravity.y * (currentFallGravityScale - 1) * Time.deltaTime;
+            //Debug.LogError("Gravity: -------- " + currentFallGravityScale);
+            rb.AddForce(Vector3.up * Physics.gravity.y * (currentFallGravityScale - 1), ForceMode.Acceleration);
         }
-        else if (isJumping && rb.velocity.y > 0)
-            rb.velocity += Vector3.up * Physics.gravity.y * (jumpGravity - 1) * Time.deltaTime;
+        else if (rb.velocity.y > 0)
+            rb.AddForce(Vector3.up * Physics.gravity.y * (jumpGravity - 1), ForceMode.Acceleration);
     }
     bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, 1.1f);
+        Vector3 rayStart = transform.position;
+        float rayLength = 1.1f;
+        RaycastHit hit;
+
+        if (Physics.Raycast(rayStart, Vector3.down, out hit, rayLength))
+        {
+            // Check if the collider is not a trigger
+            if (!hit.collider.isTrigger)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
     public void SetFloatState(bool state)
     {
         isFloating = state;
     }
-    public bool GetJumpState()
+    public bool GetJumpStates()
     {
         return isJumping;
     }
