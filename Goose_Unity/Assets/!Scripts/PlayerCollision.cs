@@ -7,6 +7,7 @@ public class PlayerCollision : MonoBehaviour
 {
     bool test;
     float timer;
+    [SerializeField] Transform playerTransform;
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Restart"))
