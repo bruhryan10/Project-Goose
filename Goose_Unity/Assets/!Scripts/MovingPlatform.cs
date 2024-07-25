@@ -4,14 +4,19 @@ using UnityEngine;
 
 public class MovingPlatform : MonoBehaviour
 {
-    [SerializeField] Transform[] waypoints;
-    [SerializeField] float[] waitTimes;
-    [SerializeField] float speed;
-    [SerializeField] bool startMove;
+    [Header("Settings")]
+    [SerializeField] Transform[] waypoints; //List of all waypoints
+    [SerializeField] float[] waitTimes;     //List of wait times when it reaches a waypoint
+    [SerializeField] float[] targetRotations;   //List of rotation values to rotate to when it reaches a waypoint
+    [SerializeField] float speed;               //Platform Move Speed
+    [SerializeField] bool startMove;            //Start Platform Move
+    [SerializeField] bool dontMovePlayer;       //Does not move the player with the platform
 
-    [SerializeField] bool loopPlatform;
-    [SerializeField] bool pingPongPlatform;
-    [SerializeField] bool randomPlatform;
+    [Header("Platform Move Type")]
+    [SerializeField] bool loopPlatform;         //Infinitely loops
+    [SerializeField] bool pingPongPlatform;     //Gets to the end of the list & goes backwards to the start
+    [SerializeField] bool randomPlatform;       //Randomly selects waypoints - Can not go back to back to waypoints
+
 
     Transform newParent;
     Transform playerTransform;
@@ -19,6 +24,10 @@ public class MovingPlatform : MonoBehaviour
     int previousWaypointIndex = -1;
     bool isWaiting;
     bool isReversing;
+    float initialYRotation;
+    float targetYRotation;
+    float rotationStartTime;
+    float rotationDuration;
 
     void Awake()
     {
@@ -36,8 +45,8 @@ public class MovingPlatform : MonoBehaviour
                 index++;
             }
         }
-        if (waitTimes.Length != waypoints.Length)
-            Debug.LogError("The number of wait times must match the number of waypoints!");
+        if (waitTimes.Length != waypoints.Length || targetRotations.Length != waypoints.Length)
+            Debug.LogError("The number of wait times and target rotations must match the number of waypoints.");
     }
 
     void Update()
@@ -51,9 +60,23 @@ public class MovingPlatform : MonoBehaviour
     void MoveObject()
     {
         Transform targetWaypoint = waypoints[waypointIndex];
+        float distanceToWaypoint = Vector3.Distance(transform.position, targetWaypoint.position);
+
+        float moveFraction = speed * Time.deltaTime / distanceToWaypoint;
+
         transform.position = Vector3.MoveTowards(transform.position, targetWaypoint.position, speed * Time.deltaTime);
+
+        float distanceFraction = Mathf.Clamp01(moveFraction * (1f / distanceToWaypoint));
+        float elapsedTime = Time.time - rotationStartTime;
+        float lerpFactor = Mathf.Clamp01(elapsedTime / rotationDuration);
+        float currentYRotation = Mathf.LerpAngle(initialYRotation, targetYRotation, lerpFactor);
+        transform.eulerAngles = new Vector3(0, currentYRotation, 0);
+
         if (Vector3.Distance(transform.position, targetWaypoint.position) < 0.1f)
+        {
+            transform.eulerAngles = new Vector3(0, targetYRotation, 0);
             StartCoroutine(WaitAtWaypoint());
+        }
     }
     IEnumerator WaitAtWaypoint()
     {
@@ -98,11 +121,17 @@ public class MovingPlatform : MonoBehaviour
                 }
             }
         }
+        initialYRotation = transform.eulerAngles.y;
+        targetYRotation = targetRotations[waypointIndex];
+        rotationStartTime = Time.time;
+        rotationDuration = Vector3.Distance(transform.position, waypoints[waypointIndex].position) / speed;
     }
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
+            if (dontMovePlayer)
+                return;
             playerTransform = collision.transform;
             playerTransform.SetParent(transform);
         }
@@ -112,6 +141,8 @@ public class MovingPlatform : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player"))
         {
+            if (dontMovePlayer)
+                return;
             playerTransform.SetParent(null);
             playerTransform = null;
         }
