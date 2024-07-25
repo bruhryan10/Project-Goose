@@ -2,32 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class NamedBool
-{
-    [SerializeField] string name;
-    [SerializeField] bool value;
-
-    public NamedBool(string name, bool value)
-    {
-        this.name = name;
-        this.value = value;
-    }
-}
 public class MovingPlatform : MonoBehaviour
 {
     [SerializeField] Transform[] waypoints;
     [SerializeField] float[] waitTimes;
     [SerializeField] float speed;
     [SerializeField] bool startMove;
+
     [SerializeField] bool loopPlatform;
-    [SerializeField] List<bool> bools;
+    [SerializeField] bool pingPongPlatform;
+    [SerializeField] bool randomPlatform;
+
     Transform newParent;
     Transform playerTransform;
     int waypointIndex;
+    int previousWaypointIndex = -1;
     bool isWaiting;
-
-    [SerializeField] List<NamedBool> PlatformBools = new List<NamedBool>();
+    bool isReversing;
 
     void Awake()
     {
@@ -68,8 +59,45 @@ public class MovingPlatform : MonoBehaviour
     {
         isWaiting = true;
         yield return new WaitForSeconds(waitTimes[waypointIndex]);
-        waypointIndex = (waypointIndex + 1) % waypoints.Length;
+        UpdateWaypointIndex();
         isWaiting = false;
+    }
+    void UpdateWaypointIndex()
+    {
+        if (loopPlatform)
+            waypointIndex = (waypointIndex + 1) % waypoints.Length;
+        else if (randomPlatform)
+        {
+            int newWaypointIndex;
+            do
+            {
+                newWaypointIndex = Random.Range(0, waypoints.Length);
+            } while (newWaypointIndex == previousWaypointIndex);
+
+            previousWaypointIndex = waypointIndex;
+            waypointIndex = newWaypointIndex;
+        }
+        else if (pingPongPlatform)
+        {
+            if (isReversing)
+            {
+                waypointIndex--;
+                if (waypointIndex <= 0)
+                {
+                    waypointIndex = 0;
+                    isReversing = false;
+                }
+            }
+            else
+            {
+                waypointIndex++;
+                if (waypointIndex >= waypoints.Length - 1)
+                {
+                    waypointIndex = waypoints.Length - 1;
+                    isReversing = true;
+                }
+            }
+        }
     }
     void OnCollisionEnter(Collision collision)
     {

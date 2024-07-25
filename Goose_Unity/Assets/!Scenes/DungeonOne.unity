@@ -1621,20 +1621,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c04287c30328fcd409e82ebf263989f1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  waypoints: []
+  waypoints:
+  - {fileID: 563973867}
+  - {fileID: 1852782189}
+  - {fileID: 1258343589}
+  - {fileID: 1287727840}
+  - {fileID: 1054348444}
   waitTimes:
-  - 3
+  - 2
   - 0
   - 1
   - 0
   - 1
-  speed: 4
+  speed: 6
   startMove: 0
   loopPlatform: 0
-  bools: 
-  PlatformBools:
-  - name: Brug1
-    value: 1
+  pingPongPlatform: 1
+  randomPlatform: 0
 --- !u!1001 &1607926211
 PrefabInstance:
   m_ObjectHideFlags: 0
