@@ -14,7 +14,7 @@ public class MovingPlatform : MonoBehaviour
 
     [Header("Platform Move Type")]
     [SerializeField] bool loopPlatform;         //Infinitely loops
-    [SerializeField] bool pingPongPlatform;     //Gets to the end of the list & goes backwards to the start
+    [SerializeField] bool comeBackPlatform;     //Gets to the end of the list & goes backwards to the start
     [SerializeField] bool randomPlatform;       //Randomly selects waypoints - Can not go back to back to waypoints
 
 
@@ -100,7 +100,7 @@ public class MovingPlatform : MonoBehaviour
             previousWaypointIndex = waypointIndex;
             waypointIndex = newWaypointIndex;
         }
-        else if (pingPongPlatform)
+        else if (comeBackPlatform)
         {
             if (isReversing)
             {
