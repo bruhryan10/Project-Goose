@@ -1643,7 +1643,7 @@ MonoBehaviour:
   startMove: 0
   dontMovePlayer: 0
   loopPlatform: 0
-  pingPongPlatform: 1
+  comeBackPlatform: 0
   randomPlatform: 0
 --- !u!1001 &1607926211
 PrefabInstance:
